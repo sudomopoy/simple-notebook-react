@@ -132,6 +132,7 @@ function Notes() {
 
     return (
         <div>
+            <span style={{ display: "none" }}>notes-list-test</span>
             <Link
                 to="/note"
                 className="bg-secondary w-full px-5 py-4 w-min fixed right-3 bottom-3 rounded-circ z-20 hover:outline-none hover:ring-2

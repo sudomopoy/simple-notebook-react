@@ -12,10 +12,12 @@ function SignInForm(props) {
     const [signButtonLoading, setSignButtonLoading] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState([]);
     let navigate = useNavigate();
 
     const signInHandler = async () => {
         setSignButtonLoading(true);
+        setErrors([]);
         try {
             await login({
                 username: username,
@@ -23,6 +25,7 @@ function SignInForm(props) {
             });
             navigate("/");
         } catch (err) {
+            setErrors(["Login Fail"]);
             console.log(err);
         }
         setSignButtonLoading(false);
@@ -99,7 +102,11 @@ function SignInForm(props) {
                                 </a>
                             </div>
                         </div>
-
+                        <div>
+                            {errors?.map((err) => {
+                                return <p className="text-danger">{err}</p>
+                            })}
+                        </div>
                         <div>
                             <Button
                                 loading={signButtonLoading}

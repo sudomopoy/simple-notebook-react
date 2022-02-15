@@ -1,21 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { startSignIn } from "../actions/actions";
+import { startLogin } from "../actions/actions";
 import Button from "../common/Button/Button";
 import Input from "../common/Input";
 import { getBrand } from "../i18n/BrandSelector";
+import { api } from './../api/index';
 
 function SignInForm(props) {
-    const { signIn } = props;
+    const { login, auth } = props;
     const [signButtonLoading, setSignButtonLoading] = useState(false);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     let navigate = useNavigate();
 
     const signInHandler = async () => {
         setSignButtonLoading(true);
-        await signIn();
-        navigate("/");
+        try {
+            await login({
+                username: username,
+                password: password,
+            });
+            navigate("/");
+        } catch (err) {
+            console.log(err);
+        }
+        setSignButtonLoading(false);
     }
+    useEffect(() => {
+        if (auth) {
+            navigate("/");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth]);
     return (
         <>
             <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
@@ -41,9 +58,9 @@ function SignInForm(props) {
                                     type="text"
                                     autoComplete="username"
                                     required
-
                                     placeholder="Username"
                                     topRounded={true}
+                                    onChange={setUsername}
                                 />
                             </div>
                             <div>
@@ -58,7 +75,7 @@ function SignInForm(props) {
                                     required
                                     placeholder="Password"
                                     buttonRounded={true}
-
+                                    onChange={setPassword}
                                 />
                             </div>
                         </div>
@@ -98,7 +115,7 @@ function SignInForm(props) {
 }
 const mapDispatchToProps = (dispatch) => {
     return {
-        signIn: () => dispatch(startSignIn()),
+        login: (formData) => dispatch(startLogin(formData)),
     }
 }
 function mapStateToProps(state) {

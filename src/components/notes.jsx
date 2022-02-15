@@ -1,88 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import * as R from 'ramda';
 import { Link, Navigate } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { getAllNotes } from '../actions/actions';
+import selectNoteAction from '../actions/note/selectNoteAction';
+import { useNavigate } from 'react-router-dom';
 
 var indexIsEven = (val, idx) => idx % 2 === 0;
 
-function Notes() {
-    const noteRawList = [
-        {
-            title: "title 1",
-            description: "desc"
-        },
-        {
-            title: "title 2",
-            description: "desc descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 3",
-            description: "desc"
-        },
-        {
-            title: "title 4",
-            description: "descar descdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 5",
-            description: "descdsdfsrf descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf"
-        },
-        {
-            title: "title 1",
-            description: "desc"
-        },
-        {
-            title: "title 2",
-            description: "desc descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 3",
-            description: "desc"
-        },
-        {
-            title: "title 4",
-            description: "descar descdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 5",
-            description: "descdsdfsrf descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf"
-        },
-        {
-            title: "title 1",
-            description: "desc"
-        },
-        {
-            title: "title 2",
-            description: "desc descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 3",
-            description: "desc"
-        },
-        {
-            title: "title 4",
-            description: "descar descdsdfsrf descdsdfsrf descdsdfsrfd"
-        },
-        {
-            title: "title 5",
-            description: "descdsdfsrf descdsdfsrf descdsdfsrfdescdsdfsrf descdsdfsrf"
-        },
-    ];
+function Notes(props) {
+    const {
+        notes: noteRawList,
+        getAllNotes,
+        selectNote
+    } = props;
+    const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
     const [filteredNotes, setFilteredNotes] = useState({
         right: [],
         left: [],
     });
-
-    useEffect(() => {
+    const setAllNotes = () => {
+        const notes = noteRawList.reverse();
         setFilteredNotes({
-            right: R.addIndex(R.filter)(indexIsEven, noteRawList),
-            left: R.addIndex(R.reject)(indexIsEven, noteRawList),
+            right: R.addIndex(R.filter)(indexIsEven, notes),
+            left: R.addIndex(R.reject)(indexIsEven, notes),
         });
+    }
+    const handelSingleNoteClick = async (note) => {
+        console.log(note, "notenotenote");
+        await selectNote(note);
+        navigate(`/note/${note?._id}`);
+    }
+    useEffect(() => {
+        getAllNotes();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+    useEffect(() => {
+        setAllNotes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [noteRawList]);
     const filterNotes = (tx) => {
         let result = [];
-        noteRawList.forEach((item) => {
+        const notes = noteRawList.reverse();
+        notes.forEach((item) => {
             if (item?.title.indexOf(tx) > -1) {
                 result.push(item)
             }
@@ -97,15 +58,14 @@ function Notes() {
                 left: R.addIndex(R.reject)(indexIsEven, filteredNotes),
             });
         } else {
-            setFilteredNotes({
-                right: R.addIndex(R.filter)(indexIsEven, noteRawList),
-                left: R.addIndex(R.reject)(indexIsEven, noteRawList),
-            });
+            setAllNotes();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchText]);
     const renderSingleNote = (note) => {
-        return <div className="bg-white rounded-md p-8  mt-1 border border-secondary min-w-full">
+        return <div
+            onClick={() => { handelSingleNoteClick(note) }}
+            className="bg-white rounded-md p-8  mt-1 border border-secondary min-w-full cursor-pointer">
             <h1 className="text-xl font-medium  text-gray-700 mb-4">
                 {note?.title}
             </h1>
@@ -166,4 +126,17 @@ function Notes() {
     )
 }
 
-export default Notes
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        getAllNotes: () => dispatch(getAllNotes()),
+        selectNote: (note) => dispatch(selectNoteAction(note)),
+    }
+}
+function mapStateToProps(state) {
+    const { note } = state
+    return {
+        notes: note.notes
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Notes)

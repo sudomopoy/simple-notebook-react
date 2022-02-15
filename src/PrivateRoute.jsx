@@ -10,7 +10,8 @@ function PrivateRoute(props) {
 
 }
 function mapStateToProps(state) {
-    const { user } = state
+    console.log(state);
+    const { user } = state;
     return { auth: user.auth }
 }
-export default connect(mapStateToProps)(PrivateRoute)
+export default connect(mapStateToProps, undefined)(PrivateRoute)

@@ -1,8 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { userReducers } from '../actions/actions';
+import { applyMiddleware, combineReducers, createStore } from '@reduxjs/toolkit';
+import thunk from 'redux-thunk';
+import { rootReducer } from '../reducers';
+import initState from './initState';
 
-export const store = configureStore({
-  reducer: {
-    user: userReducers,
-  },
-});
+const middleware = applyMiddleware(thunk);
+
+
+
+function configureStore(state = {}) {
+
+  return createStore(rootReducer, state, middleware);
+}
+export const store = configureStore();
